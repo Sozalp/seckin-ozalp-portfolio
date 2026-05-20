@@ -342,59 +342,61 @@ export default function AdminClient() {
 
           <button disabled={busy}>{busy ? "Saving..." : "Save work item"}</button>
           {message && <p className="admin-message">{message}</p>}
+
+          {selected && (
+            <div className="gallery-panel" style={{ marginTop: 24, borderTop: "1px solid var(--line)", paddingTop: 20 }}>
+              <div className="list-head" style={{ marginBottom: 12 }}>
+                <h2 style={{ margin: 0, fontSize: 14 }}>Gallery Images</h2>
+                {!localDemo && (
+                  <label style={{
+                    display: "inline-flex", alignItems: "center", gap: 6,
+                    padding: "6px 14px", borderRadius: 4, cursor: "pointer",
+                    background: "var(--accent, #E8833A)", color: "#1a1209",
+                    fontSize: 12, fontFamily: "inherit", fontWeight: 600,
+                    opacity: galleryBusy ? 0.6 : 1, pointerEvents: galleryBusy ? "none" : "auto",
+                  }}>
+                    {galleryBusy ? "Uploading…" : "+ Add images"}
+                    <input
+                      type="file" accept="image/*" multiple
+                      style={{ display: "none" }}
+                      onChange={e => uploadGalleryImages(e.target.files)}
+                      disabled={galleryBusy}
+                    />
+                  </label>
+                )}
+              </div>
+
+              {images.length === 0 ? (
+                <p style={{ color: "var(--text-mute, #666)", fontSize: 13, margin: "12px 0" }}>
+                  {localDemo
+                    ? "Supabase bağlı olduğunda görsel yükleyebilirsiniz."
+                    : "Henüz görsel yok. + Add images ile yükleyin."}
+                </p>
+              ) : (
+                <div className="gallery-list">
+                  {images.map((img, idx) => (
+                    <div key={img.id} className="gallery-item">
+                      <img src={img.image_url} alt={img.caption || ""} />
+                      <div className="gallery-item-body">
+                        <input
+                          value={img.caption || ""}
+                          onChange={e => saveCaption(img.id, e.target.value)}
+                          placeholder="Not veya açıklama ekle…"
+                        />
+                      </div>
+                      <div className="gallery-item-actions">
+                        <button type="button" onClick={() => moveImage(idx, -1)} disabled={idx === 0} title="Yukarı taşı">↑</button>
+                        <button type="button" onClick={() => moveImage(idx, 1)} disabled={idx === images.length - 1} title="Aşağı taşı">↓</button>
+                        <button type="button" className="danger" onClick={() => deleteImage(img.id)} title="Sil">✕</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </form>
       </section>
-
-      {selected && (
-        <section className="admin-card gallery-panel">
-          <div className="list-head">
-            <h2>Gallery Images</h2>
-            {!localDemo && (
-              <label style={{
-                display: "inline-flex", alignItems: "center", gap: 6,
-                padding: "6px 14px", borderRadius: 4, cursor: "pointer",
-                background: "var(--accent, #E8833A)", color: "#1a1209",
-                fontSize: 12, fontFamily: "inherit", fontWeight: 600,
-                opacity: galleryBusy ? 0.6 : 1, pointerEvents: galleryBusy ? "none" : "auto",
-              }}>
-                {galleryBusy ? "Uploading…" : "+ Add images"}
-                <input
-                  type="file" accept="image/*" multiple
-                  style={{ display: "none" }}
-                  onChange={e => uploadGalleryImages(e.target.files)}
-                  disabled={galleryBusy}
-                />
-              </label>
-            )}
-          </div>
-
-          {images.length === 0 && (
-            <p style={{ color: "var(--text-mute, #666)", fontSize: 13, padding: "16px 0" }}>
-              Bu iş öğesi için henüz görsel yok. "+ Add images" ile yükleyin.
-            </p>
-          )}
-
-          <div className="gallery-list">
-            {images.map((img, idx) => (
-              <div key={img.id} className="gallery-item">
-                <img src={img.image_url} alt={img.caption || ""} />
-                <div className="gallery-item-body">
-                  <input
-                    value={img.caption || ""}
-                    onChange={e => saveCaption(img.id, e.target.value)}
-                    placeholder="Not veya açıklama ekle…"
-                  />
-                </div>
-                <div className="gallery-item-actions">
-                  <button onClick={() => moveImage(idx, -1)} disabled={idx === 0} title="Yukarı taşı">↑</button>
-                  <button onClick={() => moveImage(idx, 1)} disabled={idx === images.length - 1} title="Aşağı taşı">↓</button>
-                  <button className="danger" onClick={() => deleteImage(img.id)} title="Sil">✕</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
     </main>
   );
 }
