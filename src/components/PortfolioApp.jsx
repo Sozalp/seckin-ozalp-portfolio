@@ -335,7 +335,10 @@ function Timeline({ lang }) {
 
 // ---- Image Gallery Modal ----
 function ImageGalleryModal({ images, onClose }) {
+  const scrollRef = useRef(null);
+
   useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
     function onKey(e) { if (e.key === "Escape") onClose(); }
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -353,7 +356,7 @@ function ImageGalleryModal({ images, onClose }) {
       }}>ESC / CLOSE</button>
 
       {/* Scrollable inner */}
-      <div style={{ position: "absolute", inset: 0, overflowY: "auto" }}>
+      <div ref={scrollRef} style={{ position: "absolute", inset: 0, overflowY: "auto" }}>
         <div
           style={{ maxWidth: 900, margin: "0 auto", padding: "64px 24px 64px" }}
           onClick={e => e.stopPropagation()}
