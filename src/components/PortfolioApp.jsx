@@ -348,13 +348,15 @@ function ImageGalleryModal({ images, gumletId, onClose }) {
 
   return createPortal(
     <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0b0b0c" }}>
-      {/* Close — sabit, sağ alt */}
+      {/* Close — sağ üst köşe */}
       <button onClick={onClose} style={{
-        position: "fixed", bottom: 24, right: 24, zIndex: 2,
-        background: "rgba(20,20,20,0.95)", border: "1px solid rgba(255,255,255,0.15)",
-        color: "#aaa", cursor: "pointer", padding: "8px 18px",
-        fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.1em", borderRadius: 3,
-      }}>ESC / CLOSE</button>
+        position: "fixed", top: 16, right: 16, zIndex: 2,
+        width: 40, height: 40, borderRadius: "50%",
+        background: "rgba(30,30,30,0.95)", border: "1px solid rgba(255,255,255,0.15)",
+        color: "#fff", cursor: "pointer", fontSize: 20, lineHeight: 1,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.5)",
+      }} title="Kapat (ESC)">✕</button>
 
       {/* Scrollable inner */}
       <div ref={scrollRef} style={{ position: "absolute", inset: 0, overflowY: "auto" }}>
