@@ -335,49 +335,46 @@ function Timeline({ lang }) {
 
 // ---- Image Gallery Modal ----
 function ImageGalleryModal({ images, onClose }) {
-  const [current, setCurrent] = useState(0);
-  const img = images[current];
-
   useEffect(() => {
-    function onKey(e) {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") setCurrent(c => Math.max(0, c - 1));
-      if (e.key === "ArrowRight") setCurrent(c => Math.min(images.length - 1, c + 1));
-    }
+    function onKey(e) { if (e.key === "Escape") onClose(); }
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
-  }, [onClose, images.length]);
+  }, [onClose]);
 
   return (
     <div
-      style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.94)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backdropFilter: "blur(10px)" }}
+      style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.94)", backdropFilter: "blur(10px)", overflowY: "auto" }}
       onClick={onClose}
     >
-      <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", maxWidth: "92vw" }} onClick={e => e.stopPropagation()}>
-        <button onClick={onClose} style={{ position: "absolute", top: -44, right: 0, background: "none", border: "1px solid var(--line)", color: "var(--text-dim)", cursor: "pointer", padding: "6px 14px", fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.1em" }}>ESC / CLOSE</button>
-        <div style={{ position: "relative" }}>
-          <img src={img.image_url} alt={img.caption || ""} style={{ maxHeight: "78vh", maxWidth: "92vw", objectFit: "contain", display: "block" }} />
-          {current > 0 && (
-            <button onClick={() => setCurrent(c => c - 1)} style={{ position: "absolute", left: -52, top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: "1px solid var(--line)", color: "#fff", cursor: "pointer", width: 40, height: 40, fontSize: 20, borderRadius: 4 }}>‹</button>
-          )}
-          {current < images.length - 1 && (
-            <button onClick={() => setCurrent(c => c + 1)} style={{ position: "absolute", right: -52, top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", border: "1px solid var(--line)", color: "#fff", cursor: "pointer", width: 40, height: 40, fontSize: 20, borderRadius: 4 }}>›</button>
-          )}
-        </div>
-        <div style={{ marginTop: 14, textAlign: "center" }}>
-          {img.caption && <p style={{ color: "var(--text-dim)", fontSize: 13, marginBottom: 6, maxWidth: 600 }}>{img.caption}</p>}
-          <span style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 11, color: "var(--text-mute)", letterSpacing: "0.1em" }}>{current + 1} / {images.length}</span>
-        </div>
-        {images.length > 1 && (
-          <div style={{ display: "flex", gap: 5, marginTop: 10, flexWrap: "wrap", justifyContent: "center" }}>
-            {images.map((im, i) => (
-              <button key={im.id} onClick={() => setCurrent(i)} style={{ width: 44, height: 32, padding: 0, border: "none", outline: i === current ? "2px solid var(--accent)" : "2px solid transparent", outlineOffset: 1, cursor: "pointer", borderRadius: 2, overflow: "hidden" }}>
-                <img src={im.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              </button>
-            ))}
+      {/* Close */}
+      <button onClick={onClose} style={{
+        position: "fixed", top: 20, right: 24, zIndex: 10,
+        background: "rgba(0,0,0,0.6)", border: "1px solid var(--line)",
+        color: "var(--text-dim)", cursor: "pointer", padding: "6px 14px",
+        fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.1em", borderRadius: 3,
+      }}>ESC / CLOSE</button>
+
+      {/* Vertical image stack */}
+      <div
+        style={{ maxWidth: 900, margin: "0 auto", padding: "72px 24px 48px" }}
+        onClick={e => e.stopPropagation()}
+      >
+        {images.map((img, i) => (
+          <div key={img.id} style={{ marginBottom: 48 }}>
+            <img
+              src={img.image_url}
+              alt={img.caption || ""}
+              style={{ width: "100%", display: "block", borderRadius: 4 }}
+            />
+            {img.caption && (
+              <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 10, lineHeight: 1.5 }}>{img.caption}</p>
+            )}
+            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 10, color: "var(--text-mute)", letterSpacing: "0.12em", marginTop: 6 }}>
+              {String(i + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
+            </div>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
