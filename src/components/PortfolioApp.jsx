@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cvData } from "../lib/cv-data";
 import { loadPublicWorks } from "../lib/work-store";
 
@@ -345,7 +346,7 @@ function ImageGalleryModal({ images, gumletId, onClose }) {
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0b0b0c" }}>
       {/* Close — sabit, sağ alt */}
       <button onClick={onClose} style={{
@@ -392,7 +393,8 @@ function ImageGalleryModal({ images, gumletId, onClose }) {
           ))}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -408,7 +410,7 @@ function VideoModal({ videoId, title, onClose }) {
     };
   }, [onClose]);
 
-  return (
+  return createPortal(
     <div
       style={{
         position: "fixed", inset: 0, zIndex: 9999,
@@ -439,7 +441,8 @@ function VideoModal({ videoId, title, onClose }) {
           }}
         >ESC / CLOSE</button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
