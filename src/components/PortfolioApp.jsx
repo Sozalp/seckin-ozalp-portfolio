@@ -343,38 +343,37 @@ function ImageGalleryModal({ images, onClose }) {
   }, [onClose]);
 
   return (
-    <div
-      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0b0b0c", overflowY: "auto" }}
-      onClick={onClose}
-    >
+    <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0b0b0c" }}>
       {/* Close */}
       <button onClick={onClose} style={{
-        position: "fixed", top: 20, right: 24, zIndex: 10,
-        background: "rgba(0,0,0,0.6)", border: "1px solid var(--line)",
-        color: "var(--text-dim)", cursor: "pointer", padding: "6px 14px",
+        position: "absolute", top: 16, right: 20, zIndex: 2,
+        background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,255,255,0.15)",
+        color: "#aaa", cursor: "pointer", padding: "6px 14px",
         fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.1em", borderRadius: 3,
       }}>ESC / CLOSE</button>
 
-      {/* Vertical image stack */}
-      <div
-        style={{ maxWidth: 900, margin: "0 auto", padding: "72px 24px 48px" }}
-        onClick={e => e.stopPropagation()}
-      >
-        {images.map((img, i) => (
-          <div key={img.id} style={{ marginBottom: 48 }}>
-            <img
-              src={img.image_url}
-              alt={img.caption || ""}
-              style={{ width: "100%", display: "block", borderRadius: 4 }}
-            />
-            {img.caption && (
-              <p style={{ color: "var(--text-dim)", fontSize: 13, marginTop: 10, lineHeight: 1.5 }}>{img.caption}</p>
-            )}
-            <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 10, color: "var(--text-mute)", letterSpacing: "0.12em", marginTop: 6 }}>
-              {String(i + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
+      {/* Scrollable inner */}
+      <div style={{ position: "absolute", inset: 0, overflowY: "auto" }}>
+        <div
+          style={{ maxWidth: 900, margin: "0 auto", padding: "64px 24px 64px" }}
+          onClick={e => e.stopPropagation()}
+        >
+          {images.map((img, i) => (
+            <div key={img.id} style={{ marginBottom: 56 }}>
+              <img
+                src={img.image_url}
+                alt={img.caption || ""}
+                style={{ width: "100%", display: "block", borderRadius: 4 }}
+              />
+              {img.caption && (
+                <p style={{ color: "#aaa", fontSize: 13, marginTop: 10, lineHeight: 1.6 }}>{img.caption}</p>
+              )}
+              <div style={{ fontFamily: '"JetBrains Mono",monospace', fontSize: 10, color: "#555", letterSpacing: "0.14em", marginTop: 6 }}>
+                {String(i + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
