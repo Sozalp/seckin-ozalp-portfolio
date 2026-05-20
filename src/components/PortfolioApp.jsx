@@ -344,7 +344,7 @@ function ImageGalleryModal({ images, onClose }) {
 
   return (
     <div
-      style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.94)", backdropFilter: "blur(10px)", overflowY: "auto" }}
+      style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0b0b0c", overflowY: "auto" }}
       onClick={onClose}
     >
       {/* Close */}
@@ -395,10 +395,9 @@ function VideoModal({ videoId, title, onClose }) {
   return (
     <div
       style={{
-        position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(0,0,0,0.88)", display: "flex",
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "#0b0b0c", display: "flex",
         flexDirection: "column", alignItems: "center", justifyContent: "center",
-        backdropFilter: "blur(8px)",
       }}
       onClick={onClose}
     >
