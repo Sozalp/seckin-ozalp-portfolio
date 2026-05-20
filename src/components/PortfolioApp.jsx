@@ -333,10 +333,59 @@ function Timeline({ lang }) {
   );
 }
 
+// ---- Video Modal ----
+function VideoModal({ videoId, title, onClose }) {
+  useEffect(() => {
+    function onKey(e) { if (e.key === "Escape") onClose(); }
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 1000,
+        background: "rgba(0,0,0,0.88)", display: "flex",
+        flexDirection: "column", alignItems: "center", justifyContent: "center",
+        backdropFilter: "blur(8px)",
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{ position: "relative", width: "min(900px, 95vw)", aspectRatio: "16/9" }}
+        onClick={e => e.stopPropagation()}
+      >
+        <iframe
+          src={`https://play.gumlet.io/embed/${videoId}?autoplay=true&loop=false&disable_player_controls=false`}
+          style={{ width: "100%", height: "100%", border: "none" }}
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          title={title}
+        />
+        <button
+          onClick={onClose}
+          style={{
+            position: "absolute", top: -44, right: 0,
+            background: "none", border: "1px solid var(--line)",
+            color: "var(--text-dim)", cursor: "pointer",
+            padding: "6px 14px", fontFamily: '"JetBrains Mono", monospace',
+            fontSize: 11, letterSpacing: "0.1em",
+          }}
+        >ESC / CLOSE</button>
+      </div>
+    </div>
+  );
+}
+
 // ---- Work ----
 function Work({ lang }) {
   const [typeFilter, setTypeFilter] = useState("all");
   const [works, setWorks] = useState([]);
+  const [modal, setModal] = useState(null);
   const typeLabels = {
     video: lang === "tr" ? "Video" : "Video",
     artwork: "Artwork",
@@ -358,6 +407,7 @@ function Work({ lang }) {
         year: w.year,
         thumbnail: w.thumbnail_url || null,
         href: w.media_url || "",
+        gumletId: w.gumlet_video_id || "",
       }))))
       .catch(() => setWorks(cvData.works));
   }, []);
@@ -386,34 +436,76 @@ function Work({ lang }) {
         {filtered.map((item, i) => {
           const title = lang === "tr" ? item.title.tr : item.title.en;
           const description = lang === "tr" ? item.description.tr : item.description.en;
-          const card = (
-            <>
-              <div className="work-thumb">
-                {item.thumbnail ? (
-                  <img src={item.thumbnail} alt={title} loading="lazy" />
-                ) : (
-                  <div className="work-placeholder" aria-hidden="true">
-                    <span>{String(i + 1).padStart(2, "0")}</span>
-                    <strong>{typeLabels[item.type] || item.type}</strong>
-                  </div>
-                )}
-                <span className={`work-badge type-${item.type}`}>{typeLabels[item.type] || item.type}</span>
-              </div>
-              <div className="work-body">
-                <div className="work-meta">{item.year} · {typeLabels[item.type] || item.type}</div>
-                <h3>{title}</h3>
-                <p>{description}</p>
-                <div className="work-action">{item.href ? (lang === "tr" ? "Aç" : "Open") : (lang === "tr" ? "İçerik bekliyor" : "Ready for content")}</div>
-              </div>
-            </>
+          const hasGumlet = Boolean(item.gumletId);
+          const hasLink = Boolean(item.href);
+
+          const thumb = (
+            <div className="work-thumb">
+              {item.thumbnail ? (
+                <img src={item.thumbnail} alt={title} loading="lazy" />
+              ) : (
+                <div className="work-placeholder" aria-hidden="true">
+                  <span>{String(i + 1).padStart(2, "0")}</span>
+                  <strong>{typeLabels[item.type] || item.type}</strong>
+                </div>
+              )}
+              {hasGumlet && (
+                <div style={{
+                  position: "absolute", inset: 0, display: "flex",
+                  alignItems: "center", justifyContent: "center",
+                  background: "rgba(0,0,0,0.25)",
+                }}>
+                  <svg viewBox="0 0 48 48" style={{ width: 48, height: 48, opacity: 0.9 }}>
+                    <circle cx="24" cy="24" r="22" fill="rgba(0,0,0,0.55)" />
+                    <polygon points="19,14 37,24 19,34" fill="white" />
+                  </svg>
+                </div>
+              )}
+              <span className={`work-badge type-${item.type}`}>{typeLabels[item.type] || item.type}</span>
+            </div>
           );
-          return item.href ? (
-            <a className="work-card" href={item.href} target="_blank" rel="noreferrer" key={item.title.en}>{card}</a>
-          ) : (
-            <article className="work-card" key={item.title.en}>{card}</article>
+
+          const body = (
+            <div className="work-body">
+              <div className="work-meta">{item.year} · {typeLabels[item.type] || item.type}</div>
+              <h3>{title}</h3>
+              <p>{description}</p>
+              <div className="work-action">
+                {hasGumlet
+                  ? (lang === "tr" ? "▶ Oynat" : "▶ Play")
+                  : hasLink
+                    ? (lang === "tr" ? "Aç ↗" : "Open ↗")
+                    : (lang === "tr" ? "İçerik bekliyor" : "Ready for content")}
+              </div>
+            </div>
+          );
+
+          if (hasGumlet) {
+            return (
+              <button
+                className="work-card"
+                key={item.title.en}
+                style={{ textAlign: "left", cursor: "pointer" }}
+                onClick={() => { setModal({ id: item.gumletId, title }); Sfx.click(); }}
+              >
+                {thumb}{body}
+              </button>
+            );
+          }
+          if (hasLink) {
+            return (
+              <a className="work-card" href={item.href} target="_blank" rel="noreferrer" key={item.title.en}>
+                {thumb}{body}
+              </a>
+            );
+          }
+          return (
+            <article className="work-card" key={item.title.en}>{thumb}{body}</article>
           );
         })}
       </div>
+
+      {modal && <VideoModal videoId={modal.id} title={modal.title} onClose={() => setModal(null)} />}
     </section>
   );
 }
