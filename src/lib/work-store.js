@@ -36,24 +36,9 @@ export async function loadPublicWorks() {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from("works")
-    .select("*, work_images(id, image_url, caption, sort_order)")
+    .select("*")
     .eq("published", true)
     .order("sort_order", { ascending: true });
   if (error) throw error;
-  return normalizeWorks(data || []).map(w => ({
-    ...w,
-    images: (w.work_images || []).slice().sort((a, b) => a.sort_order - b.sort_order),
-  }));
-}
-
-export async function loadWorkImages(workId) {
-  if (!isSupabaseConfigured) return [];
-  const supabase = getSupabase();
-  const { data, error } = await supabase
-    .from("work_images")
-    .select("*")
-    .eq("work_id", workId)
-    .order("sort_order", { ascending: true });
-  if (error) throw error;
-  return data || [];
+  return normalizeWorks(data || []);
 }

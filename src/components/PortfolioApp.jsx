@@ -333,104 +333,6 @@ function Timeline({ lang }) {
   );
 }
 
-// ---- Image Gallery Modal ----
-function ImageGalleryModal({ images, onClose }) {
-  const [current, setCurrent] = useState(0);
-  const img = images[current];
-
-  useEffect(() => {
-    function onKey(e) {
-      if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") setCurrent(c => Math.max(0, c - 1));
-      if (e.key === "ArrowRight") setCurrent(c => Math.min(images.length - 1, c + 1));
-    }
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [onClose, images.length]);
-
-  return (
-    <div
-      style={{
-        position: "fixed", inset: 0, zIndex: 1000,
-        background: "rgba(0,0,0,0.94)", display: "flex",
-        flexDirection: "column", alignItems: "center", justifyContent: "center",
-        backdropFilter: "blur(10px)",
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", maxWidth: "92vw" }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Close */}
-        <button onClick={onClose} style={{
-          position: "absolute", top: -44, right: 0,
-          background: "none", border: "1px solid var(--line)",
-          color: "var(--text-dim)", cursor: "pointer",
-          padding: "6px 14px", fontFamily: '"JetBrains Mono", monospace',
-          fontSize: 11, letterSpacing: "0.1em",
-        }}>ESC / CLOSE</button>
-
-        {/* Image */}
-        <div style={{ position: "relative" }}>
-          <img
-            src={img.image_url}
-            alt={img.caption || ""}
-            style={{ maxHeight: "78vh", maxWidth: "92vw", objectFit: "contain", display: "block" }}
-          />
-          {/* Prev */}
-          {current > 0 && (
-            <button onClick={() => setCurrent(c => c - 1)} style={{
-              position: "absolute", left: -52, top: "50%", transform: "translateY(-50%)",
-              background: "rgba(0,0,0,0.5)", border: "1px solid var(--line)",
-              color: "#fff", cursor: "pointer", width: 40, height: 40,
-              fontSize: 18, borderRadius: 4,
-            }}>‹</button>
-          )}
-          {/* Next */}
-          {current < images.length - 1 && (
-            <button onClick={() => setCurrent(c => c + 1)} style={{
-              position: "absolute", right: -52, top: "50%", transform: "translateY(-50%)",
-              background: "rgba(0,0,0,0.5)", border: "1px solid var(--line)",
-              color: "#fff", cursor: "pointer", width: 40, height: 40,
-              fontSize: 18, borderRadius: 4,
-            }}>›</button>
-          )}
-        </div>
-
-        {/* Caption + counter */}
-        <div style={{ marginTop: 16, textAlign: "center" }}>
-          {img.caption && (
-            <p style={{ color: "var(--text-dim)", fontSize: 13, marginBottom: 8, maxWidth: 600 }}>{img.caption}</p>
-          )}
-          <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 11, color: "var(--text-mute)", letterSpacing: "0.1em" }}>
-            {current + 1} / {images.length}
-          </span>
-        </div>
-
-        {/* Thumbnail strip */}
-        {images.length > 1 && (
-          <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap", justifyContent: "center" }}>
-            {images.map((im, i) => (
-              <button key={im.id} onClick={() => setCurrent(i)} style={{
-                width: 48, height: 36, padding: 0, border: "none",
-                outline: i === current ? "2px solid var(--accent)" : "2px solid transparent",
-                outlineOffset: 1, cursor: "pointer", borderRadius: 2, overflow: "hidden",
-              }}>
-                <img src={im.image_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 // ---- Video Modal ----
 function VideoModal({ videoId, title, onClose }) {
   useEffect(() => {
@@ -483,7 +385,7 @@ function VideoModal({ videoId, title, onClose }) {
 function Work({ lang }) {
   const [typeFilter, setTypeFilter] = useState("all");
   const [works, setWorks] = useState([]);
-  const [modal, setModal] = useState(null);   // { type: "video", id, title } | { type: "gallery", images }
+  const [modal, setModal] = useState(null);
   const typeLabels = {
     video: lang === "tr" ? "Video" : "Video",
     artwork: "Artwork",
@@ -506,7 +408,6 @@ function Work({ lang }) {
         thumbnail: w.thumbnail_url || null,
         href: w.media_url || "",
         gumletId: w.gumlet_video_id || "",
-        images: w.images || [],
       }))))
       .catch(() => setWorks(cvData.works));
   }, []);
@@ -537,10 +438,7 @@ function Work({ lang }) {
           const description = lang === "tr" ? item.description.tr : item.description.en;
           const hasGumlet = Boolean(item.gumletId);
           const hasLink = Boolean(item.href);
-          const hasGallery = item.images && item.images.length > 0;
-          const thumbSrc = item.thumbnail
-            || (hasGallery ? item.images[0].image_url : null)
-            || (hasGumlet ? `https://video.gumlet.io/${item.gumletId}/thumbnail-1-0.png` : null);
+          const thumbSrc = item.thumbnail || (hasGumlet ? `https://video.gumlet.io/${item.gumletId}/thumbnail-1-0.png` : null);
 
           const thumb = (
             <div className="work-thumb">
@@ -564,15 +462,6 @@ function Work({ lang }) {
                   </svg>
                 </div>
               )}
-              {hasGallery && !hasGumlet && (
-                <div style={{
-                  position: "absolute", bottom: 8, right: 8,
-                  background: "rgba(0,0,0,0.6)", borderRadius: 3,
-                  padding: "3px 7px", fontSize: 11,
-                  fontFamily: '"JetBrains Mono", monospace',
-                  color: "#fff", letterSpacing: "0.05em",
-                }}>⊞ {item.images.length}</div>
-              )}
               <span className={`work-badge type-${item.type}`}>{typeLabels[item.type] || item.type}</span>
             </div>
           );
@@ -583,36 +472,22 @@ function Work({ lang }) {
               <h3>{title}</h3>
               <p>{description}</p>
               <div className="work-action">
-                {hasGallery && !hasGumlet
-                  ? (lang === "tr" ? `⊞ ${item.images.length} görsel` : `⊞ ${item.images.length} images`)
-                  : hasGumlet
-                    ? (lang === "tr" ? "▶ Oynat" : "▶ Play")
-                    : hasLink
-                      ? (lang === "tr" ? "Aç ↗" : "Open ↗")
-                      : (lang === "tr" ? "İçerik bekliyor" : "Ready for content")}
+                {hasGumlet
+                  ? (lang === "tr" ? "▶ Oynat" : "▶ Play")
+                  : hasLink
+                    ? (lang === "tr" ? "Aç ↗" : "Open ↗")
+                    : (lang === "tr" ? "İçerik bekliyor" : "Ready for content")}
               </div>
             </div>
           );
 
-          if (hasGallery && !hasGumlet) {
-            return (
-              <button
-                className="work-card"
-                key={item.title.en}
-                style={{ textAlign: "left", cursor: "pointer" }}
-                onClick={() => { setModal({ type: "gallery", images: item.images }); Sfx.click(); }}
-              >
-                {thumb}{body}
-              </button>
-            );
-          }
           if (hasGumlet) {
             return (
               <button
                 className="work-card"
                 key={item.title.en}
                 style={{ textAlign: "left", cursor: "pointer" }}
-                onClick={() => { setModal({ type: "video", id: item.gumletId, title }); Sfx.click(); }}
+                onClick={() => { setModal({ id: item.gumletId, title }); Sfx.click(); }}
               >
                 {thumb}{body}
               </button>
@@ -631,8 +506,7 @@ function Work({ lang }) {
         })}
       </div>
 
-      {modal?.type === "gallery" && <ImageGalleryModal images={modal.images} onClose={() => setModal(null)} />}
-      {modal?.type === "video" && <VideoModal videoId={modal.id} title={modal.title} onClose={() => setModal(null)} />}
+      {modal && <VideoModal videoId={modal.id} title={modal.title} onClose={() => setModal(null)} />}
     </section>
   );
 }
