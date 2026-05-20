@@ -347,18 +347,18 @@ function ImageGalleryModal({ images, gumletId, onClose }) {
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0b0b0c" }}>
-      {/* Close */}
+      {/* Close — sabit, sağ alt */}
       <button onClick={onClose} style={{
-        position: "absolute", top: 16, right: 20, zIndex: 2,
-        background: "rgba(0,0,0,0.7)", border: "1px solid rgba(255,255,255,0.15)",
-        color: "#aaa", cursor: "pointer", padding: "6px 14px",
+        position: "fixed", bottom: 24, right: 24, zIndex: 2,
+        background: "rgba(20,20,20,0.95)", border: "1px solid rgba(255,255,255,0.15)",
+        color: "#aaa", cursor: "pointer", padding: "8px 18px",
         fontFamily: '"JetBrains Mono",monospace', fontSize: 11, letterSpacing: "0.1em", borderRadius: 3,
       }}>ESC / CLOSE</button>
 
       {/* Scrollable inner */}
       <div ref={scrollRef} style={{ position: "absolute", inset: 0, overflowY: "auto" }}>
         <div
-          style={{ maxWidth: 900, margin: "0 auto", padding: "64px 24px 64px" }}
+          style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px 80px" }}
           onClick={e => e.stopPropagation()}
         >
           {/* Video — gumletId varsa en üstte göster */}
