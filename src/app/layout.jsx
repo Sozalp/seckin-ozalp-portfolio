@@ -1,13 +1,21 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Seckin Ozalp Portfolio",
-  description: "3D, VFX, game art and selected film work portfolio."
+  title: "Seçkin Özalp · Lead 3D Artist / VFX",
+  description: "Twenty-plus years modeling, simulating and compositing — currently shipping 3D for mobile games.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );
