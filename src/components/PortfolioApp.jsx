@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cvData } from "../lib/cv-data";
+import { loadPublicWorks } from "../lib/work-store";
 
 // ---- Sound effects ----
 const Sfx = (() => {
@@ -335,6 +336,7 @@ function Timeline({ lang }) {
 // ---- Work ----
 function Work({ lang }) {
   const [typeFilter, setTypeFilter] = useState("all");
+  const [works, setWorks] = useState([]);
   const typeLabels = {
     video: lang === "tr" ? "Video" : "Video",
     artwork: "Artwork",
@@ -346,7 +348,21 @@ function Work({ lang }) {
     { k: "artwork", l: "Artwork" },
     { k: "project", l: lang === "tr" ? "Proje" : "Project" },
   ];
-  const filtered = cvData.works.filter(w => typeFilter === "all" || w.type === typeFilter);
+
+  useEffect(() => {
+    loadPublicWorks()
+      .then(data => setWorks(data.map(w => ({
+        title: { en: w.title_en, tr: w.title_tr },
+        description: { en: w.description_en, tr: w.description_tr },
+        type: w.type,
+        year: w.year,
+        thumbnail: w.thumbnail_url || null,
+        href: w.media_url || "",
+      }))))
+      .catch(() => setWorks(cvData.works));
+  }, []);
+
+  const filtered = works.filter(w => typeFilter === "all" || w.type === typeFilter);
 
   return (
     <section id="work" data-section-label="04 Work">
