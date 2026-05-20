@@ -363,11 +363,11 @@ function ImageGalleryModal({ images, gumletId, onClose }) {
         >
           {/* Video — gumletId varsa en üstte göster */}
           {gumletId && (
-            <div style={{ marginBottom: 56 }}>
-              <div style={{ position: "relative", width: "100%", aspectRatio: "16/9" }}>
+            <div style={{ marginBottom: 56, display: "flex", justifyContent: "center" }}>
+              <div style={{ position: "relative", width: "min(480px, 90vw)", aspectRatio: "9/16" }}>
                 <iframe
                   src={`https://play.gumlet.io/embed/${gumletId}?autoplay=false&muted=false&loop=false`}
-                  style={{ width: "100%", height: "100%", border: "none", borderRadius: 4 }}
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: "none", borderRadius: 4 }}
                   allow="autoplay; fullscreen; picture-in-picture"
                   allowFullScreen
                 />
