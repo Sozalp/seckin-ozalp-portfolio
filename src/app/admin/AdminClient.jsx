@@ -35,6 +35,7 @@ export default function AdminClient() {
   const [activeTab, setActiveTab] = useState("details");
   const [images, setImages] = useState([]);
   const [galleryBusy, setGalleryBusy] = useState(false);
+  const [newImageUrl, setNewImageUrl] = useState("");
 
   useEffect(() => {
     if (localDemo) {
@@ -152,6 +153,20 @@ export default function AdminClient() {
     const { data } = supabase.storage.from("portfolio").getPublicUrl(path);
     setForm(f => ({ ...f, thumbnail_url: data.publicUrl }));
     setMessage("Thumbnail uploaded. Save to apply.");
+  }
+
+  async function addImageByUrl() {
+    const url = newImageUrl.trim();
+    if (!url || !supabase) return;
+    setGalleryBusy(true); setMessage("");
+    const baseOrder = images.length ? Math.max(...images.map(i => i.sort_order)) : 0;
+    const { error } = await supabase.from("work_images").insert({
+      work_id: selected, image_url: url, caption: "", sort_order: baseOrder + 10
+    });
+    setGalleryBusy(false);
+    if (error) { setMessage("Hata: " + error.message); return; }
+    setNewImageUrl("");
+    await refreshImages(selected);
   }
 
   async function uploadGalleryImages(fileList) {
@@ -344,9 +359,28 @@ export default function AdminClient() {
 
               {message && <p className="admin-message" style={{ marginBottom: 12 }}>{message}</p>}
 
+              {/* URL ile görsel ekle */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                <input
+                  value={newImageUrl}
+                  onChange={e => setNewImageUrl(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addImageByUrl())}
+                  placeholder="Görsel URL'si yapıştırın…"
+                  style={{ flex: 1, background: "var(--bg-2)", border: "1px solid var(--line)", color: "var(--text)", padding: "8px 12px", fontFamily: "inherit", fontSize: 13, borderRadius: 3 }}
+                />
+                <button
+                  type="button"
+                  onClick={addImageByUrl}
+                  disabled={galleryBusy || !newImageUrl.trim()}
+                  style={{ padding: "8px 16px", background: "var(--accent)", color: "#1a1209", border: "none", borderRadius: 3, fontWeight: 700, fontSize: 12, cursor: "pointer", whiteSpace: "nowrap" }}
+                >
+                  {galleryBusy ? "…" : "+ Ekle"}
+                </button>
+              </div>
+
               {images.length === 0 ? (
                 <p style={{ color: "var(--text-mute)", fontSize: 13 }}>
-                  {localDemo ? "Henüz görsel yok." : 'Henüz görsel yok. "+ Görsel ekle" ile yükleyin.'}
+                  Henüz görsel yok. Yukarıya URL yapıştırıp Ekle&apos;ye basın.
                 </p>
               ) : (
                 <div className="gallery-list">
