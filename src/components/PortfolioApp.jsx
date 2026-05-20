@@ -348,16 +348,6 @@ function ImageGalleryModal({ images, gumletId, onClose }) {
 
   return createPortal(
     <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "#0b0b0c" }}>
-      {/* Close — sağ üst köşe */}
-      <button onClick={onClose} style={{
-        position: "fixed", top: 16, right: 16, zIndex: 2,
-        width: 40, height: 40, borderRadius: "50%",
-        background: "rgba(30,30,30,0.95)", border: "1px solid rgba(255,255,255,0.15)",
-        color: "#fff", cursor: "pointer", fontSize: 20, lineHeight: 1,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.5)",
-      }} title="Kapat (ESC)">✕</button>
-
       {/* Scrollable inner */}
       <div ref={scrollRef} style={{ position: "absolute", inset: 0, overflowY: "auto" }}>
         <div
@@ -395,6 +385,16 @@ function ImageGalleryModal({ images, gumletId, onClose }) {
           ))}
         </div>
       </div>
+
+      {/* Close — scrollable div'in ÜSTÜNDE render edilir */}
+      <button onClick={onClose} style={{
+        position: "absolute", top: 16, right: 16, zIndex: 10,
+        width: 44, height: 44, borderRadius: "50%",
+        background: "rgba(40,40,40,0.98)", border: "1px solid rgba(255,255,255,0.2)",
+        color: "#fff", cursor: "pointer", fontSize: 22, lineHeight: 1,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        boxShadow: "0 2px 16px rgba(0,0,0,0.6)",
+      }} title="Kapat (ESC)">✕</button>
     </div>,
     document.body
   );
