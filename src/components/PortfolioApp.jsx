@@ -438,11 +438,12 @@ function Work({ lang }) {
           const description = lang === "tr" ? item.description.tr : item.description.en;
           const hasGumlet = Boolean(item.gumletId);
           const hasLink = Boolean(item.href);
+          const thumbSrc = item.thumbnail || (hasGumlet ? `https://video.gumlet.io/${item.gumletId}/thumbnail-1-0.png` : null);
 
           const thumb = (
             <div className="work-thumb">
-              {item.thumbnail ? (
-                <img src={item.thumbnail} alt={title} loading="lazy" />
+              {thumbSrc ? (
+                <img src={thumbSrc} alt={title} loading="lazy" />
               ) : (
                 <div className="work-placeholder" aria-hidden="true">
                   <span>{String(i + 1).padStart(2, "0")}</span>
