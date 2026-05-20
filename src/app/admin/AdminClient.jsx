@@ -31,6 +31,8 @@ export default function AdminClient() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [images, setImages] = useState([]);
+  const [galleryBusy, setGalleryBusy] = useState(false);
 
   useEffect(() => {
     if (localDemo) {
@@ -50,6 +52,14 @@ export default function AdminClient() {
   useEffect(() => {
     if (session) refreshWorks();
   }, [session]);
+
+  useEffect(() => {
+    if (selected && supabase && !localDemo) {
+      refreshImages(selected);
+    } else {
+      setImages([]);
+    }
+  }, [selected]);
 
   async function refreshWorks() {
     if (localDemo) {
@@ -169,6 +179,57 @@ export default function AdminClient() {
     setMessage("Thumbnail uploaded. Save work item to apply.");
   }
 
+  async function refreshImages(workId) {
+    const { data } = await supabase.from("work_images").select("*").eq("work_id", workId).order("sort_order");
+    setImages(data || []);
+  }
+
+  async function uploadGalleryImages(fileList) {
+    if (!fileList || !supabase) return;
+    setGalleryBusy(true);
+    setMessage("");
+    const baseOrder = images.length ? Math.max(...images.map(i => i.sort_order)) : 0;
+    for (let i = 0; i < fileList.length; i++) {
+      const file = fileList[i];
+      const ext = file.name.split(".").pop();
+      const path = `gallery/${selected}/${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from("portfolio").upload(path, file, { upsert: false });
+      if (error) { setMessage("Upload failed: " + error.message); continue; }
+      const { data: urlData } = supabase.storage.from("portfolio").getPublicUrl(path);
+      await supabase.from("work_images").insert({
+        work_id: selected,
+        image_url: urlData.publicUrl,
+        caption: "",
+        sort_order: baseOrder + (i + 1) * 10,
+      });
+    }
+    await refreshImages(selected);
+    setGalleryBusy(false);
+  }
+
+  async function saveCaption(imageId, caption) {
+    setImages(prev => prev.map(img => img.id === imageId ? { ...img, caption } : img));
+    await supabase.from("work_images").update({ caption }).eq("id", imageId);
+  }
+
+  async function deleteImage(imageId) {
+    if (!confirm("Delete this image?")) return;
+    await supabase.from("work_images").delete().eq("id", imageId);
+    setImages(prev => prev.filter(img => img.id !== imageId));
+  }
+
+  async function moveImage(idx, dir) {
+    const next = [...images];
+    const target = idx + dir;
+    if (target < 0 || target >= next.length) return;
+    [next[idx], next[target]] = [next[target], next[idx]];
+    const updates = next.map((img, i) =>
+      supabase.from("work_images").update({ sort_order: i * 10 }).eq("id", img.id)
+    );
+    await Promise.all(updates);
+    setImages(next.map((img, i) => ({ ...img, sort_order: i * 10 })));
+  }
+
   if (adminDisabled) {
     return (
       <main className="admin-shell">
@@ -283,6 +344,55 @@ export default function AdminClient() {
           {message && <p className="admin-message">{message}</p>}
         </form>
       </section>
+
+      {selected && !localDemo && (
+        <section className="admin-card gallery-panel">
+          <div className="list-head">
+            <h2>Gallery Images</h2>
+            <label style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "6px 14px", borderRadius: 4, cursor: "pointer",
+              background: "var(--accent, #E8833A)", color: "#1a1209",
+              fontSize: 12, fontFamily: "inherit", fontWeight: 600,
+              opacity: galleryBusy ? 0.6 : 1, pointerEvents: galleryBusy ? "none" : "auto",
+            }}>
+              {galleryBusy ? "Uploading…" : "+ Add images"}
+              <input
+                type="file" accept="image/*" multiple
+                style={{ display: "none" }}
+                onChange={e => uploadGalleryImages(e.target.files)}
+                disabled={galleryBusy}
+              />
+            </label>
+          </div>
+
+          {images.length === 0 && (
+            <p style={{ color: "var(--text-mute, #666)", fontSize: 13, padding: "16px 0" }}>
+              Bu iş öğesi için henüz görsel yok. "+ Add images" ile yükleyin.
+            </p>
+          )}
+
+          <div className="gallery-list">
+            {images.map((img, idx) => (
+              <div key={img.id} className="gallery-item">
+                <img src={img.image_url} alt={img.caption || ""} />
+                <div className="gallery-item-body">
+                  <input
+                    value={img.caption || ""}
+                    onChange={e => saveCaption(img.id, e.target.value)}
+                    placeholder="Not veya açıklama ekle…"
+                  />
+                </div>
+                <div className="gallery-item-actions">
+                  <button onClick={() => moveImage(idx, -1)} disabled={idx === 0} title="Yukarı taşı">↑</button>
+                  <button onClick={() => moveImage(idx, 1)} disabled={idx === images.length - 1} title="Aşağı taşı">↓</button>
+                  <button className="danger" onClick={() => deleteImage(img.id)} title="Sil">✕</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
