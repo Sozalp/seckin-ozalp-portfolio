@@ -30,6 +30,7 @@ export default function AdminClient() {
   const [form, setForm] = useState(blankWork);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (localDemo) {
@@ -153,15 +154,19 @@ export default function AdminClient() {
       setMessage("Local demo cannot upload files. Paste a thumbnail URL instead.");
       return;
     }
+    setUploading(true);
+    setMessage("");
     const ext = file.name.split(".").pop();
     const path = `works/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("portfolio").upload(path, file, { upsert: false });
+    setUploading(false);
     if (error) {
-      setMessage(error.message);
+      setMessage("Upload failed: " + error.message + " — Supabase Storage'da 'portfolio' adlı public bucket oluşturuldu mu?");
       return;
     }
     const { data } = supabase.storage.from("portfolio").getPublicUrl(path);
     setForm((current) => ({ ...current, thumbnail_url: data.publicUrl }));
+    setMessage("Thumbnail uploaded. Save work item to apply.");
   }
 
   if (adminDisabled) {
@@ -254,7 +259,21 @@ export default function AdminClient() {
           <label>Media URL<input value={form.media_url || ""} onChange={(event) => setForm({ ...form, media_url: event.target.value })} placeholder="YouTube, Vimeo, ArtStation, Behance..." /></label>
           <label>Gumlet Video ID<input value={form.gumlet_video_id || ""} onChange={(event) => setForm({ ...form, gumlet_video_id: event.target.value })} placeholder="Gumlet video ID" /></label>
           <label>Thumbnail URL<input value={form.thumbnail_url || ""} onChange={(event) => setForm({ ...form, thumbnail_url: event.target.value })} /></label>
-          <label>Upload thumbnail<input type="file" accept="image/*" onChange={(event) => uploadThumbnail(event.target.files?.[0])} /></label>
+          {form.thumbnail_url && (
+            <div style={{ marginTop: -8, marginBottom: 4 }}>
+              <img
+                src={form.thumbnail_url}
+                alt="thumbnail preview"
+                style={{ width: "100%", maxHeight: 180, objectFit: "cover", borderRadius: 4, border: "1px solid var(--admin-line, #333)" }}
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+            </div>
+          )}
+          <label>
+            Upload thumbnail
+            <input type="file" accept="image/*" onChange={(event) => uploadThumbnail(event.target.files?.[0])} disabled={uploading} />
+            {uploading && <span style={{ marginLeft: 8, fontSize: 11, opacity: 0.6 }}>Uploading...</span>}
+          </label>
           <label className="check-row">
             <input type="checkbox" checked={Boolean(form.published)} onChange={(event) => setForm({ ...form, published: event.target.checked })} />
             Published
