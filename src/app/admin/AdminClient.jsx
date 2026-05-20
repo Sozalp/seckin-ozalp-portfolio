@@ -346,7 +346,7 @@ export default function AdminClient() {
 
               {images.length === 0 ? (
                 <p style={{ color: "var(--text-mute)", fontSize: 13 }}>
-                  Henüz görsel yok.{!localDemo && " "+ Görsel ekle" ile yükleyin."}
+                  {localDemo ? "Henüz görsel yok." : 'Henüz görsel yok. "+ Görsel ekle" ile yükleyin.'}
                 </p>
               ) : (
                 <div className="gallery-list">
