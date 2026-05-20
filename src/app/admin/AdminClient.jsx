@@ -54,7 +54,7 @@ export default function AdminClient() {
   }, [session]);
 
   useEffect(() => {
-    if (selected && supabase && !localDemo) {
+    if (selected && supabase) {
       refreshImages(selected);
     } else {
       setImages([]);
@@ -345,25 +345,27 @@ export default function AdminClient() {
         </form>
       </section>
 
-      {selected && !localDemo && (
+      {selected && (
         <section className="admin-card gallery-panel">
           <div className="list-head">
             <h2>Gallery Images</h2>
-            <label style={{
-              display: "inline-flex", alignItems: "center", gap: 6,
-              padding: "6px 14px", borderRadius: 4, cursor: "pointer",
-              background: "var(--accent, #E8833A)", color: "#1a1209",
-              fontSize: 12, fontFamily: "inherit", fontWeight: 600,
-              opacity: galleryBusy ? 0.6 : 1, pointerEvents: galleryBusy ? "none" : "auto",
-            }}>
-              {galleryBusy ? "Uploading…" : "+ Add images"}
-              <input
-                type="file" accept="image/*" multiple
-                style={{ display: "none" }}
-                onChange={e => uploadGalleryImages(e.target.files)}
-                disabled={galleryBusy}
-              />
-            </label>
+            {!localDemo && (
+              <label style={{
+                display: "inline-flex", alignItems: "center", gap: 6,
+                padding: "6px 14px", borderRadius: 4, cursor: "pointer",
+                background: "var(--accent, #E8833A)", color: "#1a1209",
+                fontSize: 12, fontFamily: "inherit", fontWeight: 600,
+                opacity: galleryBusy ? 0.6 : 1, pointerEvents: galleryBusy ? "none" : "auto",
+              }}>
+                {galleryBusy ? "Uploading…" : "+ Add images"}
+                <input
+                  type="file" accept="image/*" multiple
+                  style={{ display: "none" }}
+                  onChange={e => uploadGalleryImages(e.target.files)}
+                  disabled={galleryBusy}
+                />
+              </label>
+            )}
           </div>
 
           {images.length === 0 && (
