@@ -360,7 +360,7 @@ function VideoModal({ videoId, title, onClose }) {
         onClick={e => e.stopPropagation()}
       >
         <iframe
-          src={`https://play.gumlet.io/embed/${videoId}?autoplay=true&muted=false&initial_volume=100&loop=false&disable_player_controls=false`}
+          src={`https://play.gumlet.io/embed/${videoId}?autoplay=false&muted=false&loop=false&disable_player_controls=false`}
           style={{ width: "100%", height: "100%", border: "none" }}
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
