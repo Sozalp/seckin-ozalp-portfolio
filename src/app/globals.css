@@ -308,12 +308,16 @@ section + section { padding-top: 60px; }
 .portrait-readout .v { color: var(--text); }
 
 /* ---- About ---- */
+#about {
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
 .about-grid {
-  display: grid; grid-template-columns: 1.2fr 1fr; gap: 80px;
+  display: grid; grid-template-columns: 1.2fr 1fr; gap: 48px;
 }
 .bio {
-  font-size: clamp(20px, 1.8vw, 28px);
-  line-height: 1.45;
+  font-size: clamp(13px, 1.1vw, 16px);
+  line-height: 1.6;
   color: var(--text);
   text-wrap: pretty;
   letter-spacing: -0.005em;
@@ -321,7 +325,7 @@ section + section { padding-top: 60px; }
 .bio em { color: var(--accent); font-style: normal; }
 
 .about-sidebar {
-  display: flex; flex-direction: column; gap: 24px;
+  display: flex; flex-direction: column; gap: 14px;
 }
 .kv {
   display: grid; grid-template-columns: 110px 1fr; gap: 24px;
