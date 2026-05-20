@@ -334,7 +334,7 @@ function Timeline({ lang }) {
 }
 
 // ---- Image Gallery Modal ----
-function ImageGalleryModal({ images, onClose }) {
+function ImageGalleryModal({ images, gumletId, onClose }) {
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -361,6 +361,20 @@ function ImageGalleryModal({ images, onClose }) {
           style={{ maxWidth: 900, margin: "0 auto", padding: "64px 24px 64px" }}
           onClick={e => e.stopPropagation()}
         >
+          {/* Video — gumletId varsa en üstte göster */}
+          {gumletId && (
+            <div style={{ marginBottom: 56 }}>
+              <div style={{ position: "relative", width: "100%", aspectRatio: "16/9" }}>
+                <iframe
+                  src={`https://play.gumlet.io/embed/${gumletId}?autoplay=false&muted=false&loop=false`}
+                  style={{ width: "100%", height: "100%", border: "none", borderRadius: 4 }}
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          )}
+
           {images.map((img, i) => (
             <div key={img.id} style={{ marginBottom: 56 }}>
               <img
@@ -541,7 +555,7 @@ function Work({ lang }) {
           if (hasGallery) {
             return (
               <button className="work-card" key={item.title.en} style={{ textAlign: "left", cursor: "pointer" }}
-                onClick={() => { setModal({ type: "gallery", images: item.images }); Sfx.click(); }}>
+                onClick={() => { setModal({ type: "gallery", images: item.images, gumletId: item.gumletId }); Sfx.click(); }}>
                 {thumb}{body}
               </button>
             );
@@ -565,7 +579,7 @@ function Work({ lang }) {
         })}
       </div>
 
-      {modal?.type === "gallery" && <ImageGalleryModal images={modal.images} onClose={() => setModal(null)} />}
+      {modal?.type === "gallery" && <ImageGalleryModal images={modal.images} gumletId={modal.gumletId} onClose={() => setModal(null)} />}
       {modal?.type === "video" && <VideoModal videoId={modal.id} title={modal.title} onClose={() => setModal(null)} />}
     </section>
   );
