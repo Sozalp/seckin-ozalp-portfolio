@@ -715,18 +715,12 @@ function Skills({ lang }) {
 function Contact({ lang }) {
   const items = [
     { lbl: "Email", val: cvData.contact.email, href: `mailto:${cvData.contact.email}` },
-    { lbl: "Phone", val: cvData.contact.phone, href: `tel:${cvData.contact.phone.replace(/\s/g, "")}` },
     { lbl: "Web", val: cvData.contact.web, href: `https://${cvData.contact.web}` },
     { lbl: "LinkedIn", val: cvData.contact.linkedin, href: `https://${cvData.contact.linkedin}` },
   ];
   return (
     <section id="contact" className="contact-section" data-section-label="07 Contact">
       <div className="section-label"><span className="idx">07</span><span>{lang === "tr" ? "İletişim" : "Get in touch"}</span></div>
-      <h2 className="contact-cta">
-        {lang === "tr"
-          ? <><em>Proje</em> var mı?<br />Birlikte üretelim.</>
-          : <>Got a <em>project</em>?<br />Let&apos;s make something.</>}
-      </h2>
       <div className="contact-grid">
         {items.map(it => (
           <a className="contact-card" key={it.lbl} href={it.href} target="_blank" rel="noreferrer">
